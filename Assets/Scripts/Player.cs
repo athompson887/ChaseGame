@@ -9,21 +9,27 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip success;
     [SerializeField] AudioClip startSound;
     [SerializeField] AudioClip endSound;
-    [SerializeField] double energyLossRate = 1.0f;
+    [SerializeField] AudioClip mudSound;
+    [SerializeField] float normalSpeed = 6.0f;
+    [SerializeField] float mudSpeed = 3.0f;
+    [SerializeField] double energyLossRateNormal = 1.0f;
+    [SerializeField] double energyLossRateMud = 4.0f;
     [SerializeField] int energyStraightOn = 25;
     [SerializeField] int energyTurnLeft = 20;
     [SerializeField] int energyTurnRight = 20;
     [SerializeField] int energyDeadEnd = 40;
     [SerializeField] float levelLoadDelay = 2.0f;
-    int currentLevel = 0;
-    AudioSource audioSource;
+    [SerializeField] float turnSpeed = 100.0f;
+
+    private int currentLevel = 0;
+    private AudioSource audioSource;
     private CharacterController controller;
     private Animator anim;
     private Vector3 moveDirection = Vector3.zero;
     public float gravity = 20.0f;
     public float jumpForce = 10.0f;
-    public float speed = 6.0f;
-    public float turnSpeed = 100.0f;
+    private float speed = 0.0f;
+    private double lossRate = 0.0f;
     private GameObject runFaceVar;
     private GameObject jumpFaceVar;
     private GameObject idleFaceVar;
@@ -31,14 +37,20 @@ public class Player : MonoBehaviour
     const int MAX_ENERGY = 100;
     private int energy = 100;
     private double energyFrame = 0;
+    private float savedVolume = 0;
+
     enum State { Transcending, Playing,Restarting,Waiting}
     private State state = State.Waiting;
+
+    enum GroundState { Grass, Mud }
+    private GroundState groundState = GroundState.Grass;
 
     // Start is called before the first frame update
     void Start()
     {
         currentLevel = SceneManager.GetActiveScene().buildIndex;
         audioSource = GetComponent<AudioSource>();
+        savedVolume = audioSource.volume;
         controller = GetComponent<CharacterController>(); 
         anim = gameObject.GetComponentInChildren<Animator>();
         runFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceRun");
@@ -49,7 +61,23 @@ public class Player : MonoBehaviour
         runFaceVar.SetActive(false);
         jumpFaceVar.SetActive(false);
         idleFaceVar.SetActive(true);
+        initTerrainDependantVars();
+    }
 
+    private void initTerrainDependantVars()
+    {
+        if (groundState == GroundState.Grass)
+        {
+            speed = normalSpeed;
+            lossRate = energyLossRateNormal;
+            StopMudSound();
+        }
+        else if (groundState == GroundState.Mud)
+        {
+            speed = mudSpeed;
+            lossRate = energyLossRateMud;
+            PlayMudSound();
+        }
     }
 
     private void PlayStartSound()
@@ -62,6 +90,33 @@ public class Player : MonoBehaviour
     {
         audioSource.Stop();
         audioSource.PlayOneShot(endSound);
+    }
+
+    private void PlayMudSound()
+    {
+        if (audioSource.clip == mudSound && audioSource.isPlaying)
+            return;
+        audioSource.clip = mudSound;
+        audioSource.loop = true;
+        audioSource.Play();
+    }
+
+    private void pauseGroundSound()
+    {
+        if (audioSource.clip == mudSound && audioSource.isPlaying)
+            audioSource.volume = 0;
+    }
+    private void restartGroundSound()
+    {
+        if (audioSource.clip == mudSound && audioSource.isPlaying)
+            audioSource.volume = savedVolume;
+    }
+
+
+    private void StopMudSound()
+    {
+          audioSource.loop = false;
+          audioSource.Stop();
     }
 
     private void LoadLevel()
@@ -125,7 +180,25 @@ public class Player : MonoBehaviour
         {
             addEnergy(energyDeadEnd);
         }
+        else if (other.name == "Mud")
+        {
+            groundState = GroundState.Mud;
+            initTerrainDependantVars();
+        }
     }
+
+   
+
+    private void OnTriggerExit(Collider other)
+    {
+      
+        if (other.name == "Mud")
+        {
+            groundState = GroundState.Grass;
+            initTerrainDependantVars();
+        }
+    }
+
 
     void addEnergy(int amount)
     {
@@ -137,7 +210,7 @@ public class Player : MonoBehaviour
 
     void updateEnergy()
     {
-        energyFrame += energyLossRate * Time.deltaTime;
+        energyFrame += lossRate * Time.deltaTime;
         if(energyFrame >= 1.0)
         {
             energy -= 1;
@@ -165,6 +238,7 @@ public class Player : MonoBehaviour
             jumpFaceVar.SetActive(false);
             idleFaceVar.SetActive(true);
             Invoke("Recover", 2.0f);
+            pauseGroundSound();
             return;
         }
         if(controller.isGrounded && Input.GetKey("up"))
@@ -177,6 +251,7 @@ public class Player : MonoBehaviour
             jumpFaceVar.SetActive(false);
             idleFaceVar.SetActive(false);
             updateEnergy();
+            restartGroundSound();
         }
         else if (controller.isGrounded && Input.GetKey("down"))
         {
@@ -188,6 +263,7 @@ public class Player : MonoBehaviour
             jumpFaceVar.SetActive(false);
             idleFaceVar.SetActive(false);
             updateEnergy();
+            restartGroundSound();
         }
         else if (controller.isGrounded)
         {
@@ -198,6 +274,7 @@ public class Player : MonoBehaviour
             runFaceVar.SetActive(false);
             jumpFaceVar.SetActive(false);
             idleFaceVar.SetActive(true);
+            pauseGroundSound();
         }
 
         if (Input.GetButton("Jump") && controller.isGrounded)
@@ -207,6 +284,7 @@ public class Player : MonoBehaviour
             runFaceVar.SetActive(false);
             jumpFaceVar.SetActive(true);
             idleFaceVar.SetActive(false);
+            pauseGroundSound();
             updateEnergy();
         }
 
