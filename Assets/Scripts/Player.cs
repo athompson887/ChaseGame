@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip startSound;
     [SerializeField] AudioClip endSound;
     [SerializeField] AudioClip mudSound;
+    [SerializeField] int recoveryTime = 5;
     [SerializeField] float normalSpeed = 6.0f;
     [SerializeField] float mudSpeed = 3.0f;
     [SerializeField] double energyLossRateNormal = 1.0f;
@@ -39,9 +40,11 @@ public class Player : MonoBehaviour
     private double energyFrame = 0;
     private float savedVolume = 0;
 
-    enum State { Transcending, Playing,Restarting,Waiting}
-    private State state = State.Waiting;
+    enum State { Transcending, Playing, Restarting, Waiting }
+    enum AnimationState { ToIdle, ToRun, ToJump, ToTired }
 
+    enum MoveState { Idle, Running, Jumping, Tired, Recovering }
+    private MoveState moveState = MoveState.Idle;
     enum GroundState { Grass, Mud }
     private GroundState groundState = GroundState.Grass;
 
@@ -51,7 +54,7 @@ public class Player : MonoBehaviour
         currentLevel = SceneManager.GetActiveScene().buildIndex;
         audioSource = GetComponent<AudioSource>();
         savedVolume = audioSource.volume;
-        controller = GetComponent<CharacterController>(); 
+        controller = GetComponent<CharacterController>();
         anim = gameObject.GetComponentInChildren<Animator>();
         runFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceRun");
         jumpFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceJump");
@@ -115,13 +118,12 @@ public class Player : MonoBehaviour
 
     private void StopMudSound()
     {
-          audioSource.loop = false;
-          audioSource.Stop();
+        audioSource.loop = false;
+        audioSource.Stop();
     }
 
     private void LoadLevel()
     {
-        state = State.Waiting;
         audioSource.PlayOneShot(success);
         SceneManager.LoadScene(currentLevel);
         if (currentLevel == 0)
@@ -129,7 +131,7 @@ public class Player : MonoBehaviour
             LevelOneCode();
         }
     }
-    
+
     private void LevelOneCode()
     {
 
@@ -144,7 +146,7 @@ public class Player : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.name=="start_trigger" || other.name == "start_beam")
+        if (other.name == "start_trigger" || other.name == "start_beam")
         {
             GameTimer timer = GameObject.Find("/UIOverlay/TimerText").GetComponent<GameTimer>();
             if (!timer.go)
@@ -160,7 +162,6 @@ public class Player : MonoBehaviour
             {
                 timer.StopTimer();
                 PlayEndSound();
-                state = State.Transcending;
                 Invoke("LoadNextLevel", levelLoadDelay);
             }
         }
@@ -187,11 +188,11 @@ public class Player : MonoBehaviour
         }
     }
 
-   
+
 
     private void OnTriggerExit(Collider other)
     {
-      
+
         if (other.name == "Mud")
         {
             groundState = GroundState.Grass;
@@ -211,7 +212,7 @@ public class Player : MonoBehaviour
     void updateEnergy()
     {
         energyFrame += lossRate * Time.deltaTime;
-        if(energyFrame >= 1.0)
+        if (energyFrame >= 1.0)
         {
             energy -= 1;
             energyFrame = 0.0;
@@ -222,15 +223,25 @@ public class Player : MonoBehaviour
     {
         energy = MAX_ENERGY;
         energyProgress.BarValue = 100;
-        print("Player recovered");
+        anim.SetInteger("AnimPar", (int)AnimationState.ToIdle);
+        moveState = MoveState.Recovering;
+        Invoke("SetIdle", recoveryTime);
+    }
+    void SetIdle()
+    {
+        moveState = MoveState.Idle;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(energy==0)
+        if (moveState == MoveState.Tired || moveState == MoveState.Recovering)
         {
-            anim.SetInteger("AnimPar", 0);
+            return;
+        }
+        else if (energy == 0)
+        {
+            anim.SetInteger("AnimPar", (int)AnimationState.ToTired);
             moveDirection = transform.forward * Input.GetAxis("Vertical") * 0;
             float turn = Input.GetAxis("Horizontal");
             transform.Rotate(0, turn * turnSpeed * Time.deltaTime, 0);
@@ -241,12 +252,12 @@ public class Player : MonoBehaviour
             pauseGroundSound();
             return;
         }
-        if(controller.isGrounded && Input.GetKey("up"))
+        else if (controller.isGrounded && Input.GetKey("up"))
         {
-            anim.SetInteger("AnimPar", 1);
+            anim.SetInteger("AnimPar", (int)AnimationState.ToRun);
             moveDirection = transform.forward * Input.GetAxis("Vertical") * speed;
             float turn = Input.GetAxis("Horizontal");
-            transform.Rotate(0, turn * turnSpeed * Time.deltaTime,0);
+            transform.Rotate(0, turn * turnSpeed * Time.deltaTime, 0);
             runFaceVar.SetActive(true);
             jumpFaceVar.SetActive(false);
             idleFaceVar.SetActive(false);
@@ -255,8 +266,8 @@ public class Player : MonoBehaviour
         }
         else if (controller.isGrounded && Input.GetKey("down"))
         {
-            anim.SetInteger("AnimPar", 1);
-            moveDirection = transform.forward * Input.GetAxis("Vertical") * (speed/2);
+            anim.SetInteger("AnimPar", (int)AnimationState.ToRun);
+            moveDirection = transform.forward * Input.GetAxis("Vertical") * (speed / 2);
             float turn = Input.GetAxis("Horizontal");
             transform.Rotate(0, turn * turnSpeed * Time.deltaTime, 0);
             runFaceVar.SetActive(true);
@@ -267,7 +278,7 @@ public class Player : MonoBehaviour
         }
         else if (controller.isGrounded)
         {
-            anim.SetInteger("AnimPar", 0);
+            anim.SetInteger("AnimPar", (int)AnimationState.ToIdle);
             moveDirection = transform.forward * Input.GetAxis("Vertical") * 0;
             float turn = Input.GetAxis("Horizontal");
             transform.Rotate(0, turn * turnSpeed * Time.deltaTime, 0);
@@ -279,7 +290,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetButton("Jump") && controller.isGrounded)
         {
-            anim.SetInteger("AnimPar", 2);
+            anim.SetInteger("AnimPar", (int)AnimationState.ToJump);
             moveDirection.y = jumpForce;
             runFaceVar.SetActive(false);
             jumpFaceVar.SetActive(true);
