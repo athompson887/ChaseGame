@@ -45,7 +45,7 @@ public class DeerWatch : MonoBehaviour
     private void Render()
     {
         var guiText = transform.Find("/UIOverlay/DeerText").GetComponent<Text>();
-        guiText.text = "WATCHTOWERS FOUND " + numWatchTowersFound.ToString() + "/" + numWatchTowers.ToString();
+        guiText.text = "Watchtowers Found " + numWatchTowersFound.ToString() + "/" + numWatchTowers.ToString();
     }
 
     public void OnTriggerEnter(Collider other)

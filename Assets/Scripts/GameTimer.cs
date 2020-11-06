@@ -51,7 +51,7 @@ public class GameTimer : MonoBehaviour
 			minutes = (int)(playTime / 60f);
 			seconds = (int)(playTime % 60f);
 			fraction = (int)((playTime * 10) % 10);
-			guiText.text = string.Format("ELAPSED TIME {0}\'{1}\"{2}", minutes, seconds, fraction);
+			guiText.text = string.Format("Elapsed Time {0}\'{1}\"{2}", minutes, seconds, fraction);
 		}
 
 		if (fadeIn)
