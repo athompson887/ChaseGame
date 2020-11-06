@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     [SerializeField] float mudSpeed = 3.0f;
     [SerializeField] double energyLossRateNormal = 1.0f;
     [SerializeField] double energyLossRateMud = 4.0f;
+    [SerializeField] string levelName = "";
     [SerializeField] int energyStraightOn = 25;
     [SerializeField] int energyTurnLeft = 20;
     [SerializeField] int energyTurnRight = 20;
