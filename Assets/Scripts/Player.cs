@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -15,8 +18,14 @@ public class Player : MonoBehaviour
     [SerializeField] float mudSpeed = 3.0f;
     [SerializeField] double energyLossRateNormal = 1.0f;
     [SerializeField] double energyLossRateMud = 4.0f;
-    [SerializeField] string levelName = "";
+    [SerializeField] string levelName = "Level Title";
+    [SerializeField] string levelSubtitle = "Level Subtitle";
+    [SerializeField] string levelRules = "Level Rules";
+    [SerializeField] string loseTitle = "Lose Title";
+    [SerializeField] string winTitle = "Win Title";
+    [SerializeField] string buttonText = "Play";
     [SerializeField] int energyStraightOn = 25;
+    [SerializeField] int numberOfWatchTowersToFind = 1;
     [SerializeField] int energyTurnLeft = 20;
     [SerializeField] int energyTurnRight = 20;
     [SerializeField] int energyDeadEnd = 40;
@@ -35,7 +44,13 @@ public class Player : MonoBehaviour
     private GameObject runFaceVar;
     private GameObject jumpFaceVar;
     private GameObject idleFaceVar;
+    private Text gameMessageSubTitle;
+    private Text gameMessageTitle;
+    private Text gameMessageRules;
+    private Button gameMessageButton;
+    private Canvas buttonWrapper;
     private ProgressBar energyProgress;
+    private GameTimer timer;
     const int MAX_ENERGY = 100;
     private int energy = 100;
     private double energyFrame = 0;
@@ -48,10 +63,11 @@ public class Player : MonoBehaviour
     private MoveState moveState = MoveState.Idle;
     enum GroundState { Grass, Mud }
     private GroundState groundState = GroundState.Grass;
+   
 
-    // Start is called before the first frame update
     void Start()
     {
+        DeerWatch.numWatchTowers = 0;
         currentLevel = SceneManager.GetActiveScene().buildIndex;
         audioSource = GetComponent<AudioSource>();
         savedVolume = audioSource.volume;
@@ -61,12 +77,21 @@ public class Player : MonoBehaviour
         jumpFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceJump");
         idleFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceIdle");
         energyProgress = GameObject.Find("/UIOverlay/EnergyBar").GetComponent<ProgressBar>();
+        timer = GameObject.Find("/UIOverlay/TimerText").GetComponent<GameTimer>();
+        gameMessageSubTitle = GameObject.Find("/UIOverlay/GameMessageSubTitle").GetComponent<Text>();
+        gameMessageTitle = GameObject.Find("/UIOverlay/GameMessageTitle").GetComponent<Text>();
+        gameMessageRules = GameObject.Find("/UIOverlay/GameMessageRules").GetComponent<Text>();
+        gameMessageButton = GameObject.Find("/UIOverlay/ButtonWrapper/GameMessageButton").GetComponent<Button>();
+        buttonWrapper = GameObject.Find("/UIOverlay/ButtonWrapper").GetComponent<Canvas>();
+        timer.init();
         energyProgress.BarValue = 100;
         runFaceVar.SetActive(false);
         jumpFaceVar.SetActive(false);
         idleFaceVar.SetActive(true);
         initTerrainDependantVars();
+        LevelLoadCode();
     }
+
 
     private void initTerrainDependantVars()
     {
@@ -127,15 +152,21 @@ public class Player : MonoBehaviour
     {
         audioSource.PlayOneShot(success);
         SceneManager.LoadScene(currentLevel);
-        if (currentLevel == 0)
-        {
-            LevelOneCode();
-        }
+        LevelLoadCode();
     }
 
-    private void LevelOneCode()
+    private void LevelLoadCode()
     {
+        gameMessageTitle.text = levelName;
+        gameMessageSubTitle.text = levelSubtitle;
+        gameMessageButton.GetComponentInChildren<Text>().text = buttonText;
+        gameMessageRules.text = levelRules;
+        buttonWrapper.enabled = false;
+    }
 
+    public void onButtonClicked()
+    {
+        print("clicked");
     }
 
     private void LoadNextLevel()
@@ -145,25 +176,40 @@ public class Player : MonoBehaviour
             currentLevel = 0;
         LoadLevel();
     }
+
+    private void start()
+    {
+        timer.StartTimer();
+        PlayStartSound();
+        gameMessageTitle.enabled = false;
+        gameMessageSubTitle.enabled = false;
+        buttonWrapper.enabled = false;
+        gameMessageRules.enabled = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.name == "start_trigger" || other.name == "start_beam")
         {
-            GameTimer timer = GameObject.Find("/UIOverlay/TimerText").GetComponent<GameTimer>();
             if (!timer.go)
             {
-                timer.StartTimer();
-                PlayStartSound();
+                start();
             }
         }
         else if (other.name == "end_trigger" || other.name == "end_beam")
         {
-            GameTimer timer = GameObject.Find("/UIOverlay/TimerText").GetComponent<GameTimer>();
             if (timer.go)
             {
                 timer.StopTimer();
                 PlayEndSound();
-                Invoke("LoadNextLevel", levelLoadDelay);
+                if(DeerWatch.numWatchTowersFound >= numberOfWatchTowersToFind)
+                {
+                    showEndScreen(true);
+                }
+                else
+                {
+                    showEndScreen(false);
+                }
             }
         }
         else if (other.name == "StraightOn")
@@ -182,19 +228,23 @@ public class Player : MonoBehaviour
         {
             addEnergy(energyDeadEnd);
         }
-        else if (other.name == "Mud")
+        else if (other.name.ToUpper().Contains("MUD"))
         {
             groundState = GroundState.Mud;
             initTerrainDependantVars();
         }
     }
 
+    private void showEndScreen(Boolean success)
+    {
+        Invoke("LoadNextLevel", levelLoadDelay);
+    }
 
 
     private void OnTriggerExit(Collider other)
     {
 
-        if (other.name == "Mud")
+        if (other.name.ToUpper().Contains("MUD"))
         {
             groundState = GroundState.Grass;
             initTerrainDependantVars();

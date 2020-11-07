@@ -8,13 +8,13 @@ public class DeerWatch : MonoBehaviour
 {
     [SerializeField] AudioClip success;
     [SerializeField] ParticleSystem successParticles;
-    static int numWatchTowers;
+    public static int numWatchTowers;
 
     AudioSource audioSource;
     public float volume = 0.5f;
     enum State { Found, Hidden }
     State state = State.Hidden;
-    static int numWatchTowersFound = 0;
+    public static int numWatchTowersFound = 0;
 
     void Start()
     {

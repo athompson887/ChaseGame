@@ -66,12 +66,16 @@ public class GameTimer : MonoBehaviour
 
 	}
 
+	public void init()
+    {
+		FadeStartTime = Time.time;
+		fadeIn = true;
+	}
+
 	public void StartTimer()
 	{
 		startTime = Time.time;
 		go = true;
-		FadeStartTime = Time.time;
-		fadeIn = true;
 	}
 
 	public void StopTimer()

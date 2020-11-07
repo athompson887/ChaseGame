@@ -959,7 +959,7 @@ Transform:
   m_LocalScale: {x: 0.01, y: 1.5, z: 7}
   m_Children: []
   m_Father: {fileID: 81708321}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &336703455
 BoxCollider:
@@ -5421,7 +5421,7 @@ Transform:
   m_LocalScale: {x: 0.01, y: 1.5, z: 7}
   m_Children: []
   m_Father: {fileID: 165554856}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1877704734
 BoxCollider:
