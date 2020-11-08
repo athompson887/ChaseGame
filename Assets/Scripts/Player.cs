@@ -18,11 +18,17 @@ public class Player : MonoBehaviour
     [SerializeField] float mudSpeed = 3.0f;
     [SerializeField] double energyLossRateNormal = 1.0f;
     [SerializeField] double energyLossRateMud = 4.0f;
-    [SerializeField] string levelName = "Level Title";
-    [SerializeField] string levelSubtitle = "Level Subtitle";
-    [SerializeField] string levelRules = "Level Rules";
-    [SerializeField] string loseTitle = "Lose Title";
-    [SerializeField] string winTitle = "Win Title";
+    [SerializeField] string levelName = "Level 1";
+    [SerializeField] string levelSubtitle = "Getting Lost With Andy";
+    [SerializeField] string levelRules = "Collect Watchtowers and Race To The End";
+    [SerializeField] string loseTitle = "You Lose";
+    [SerializeField] string loseSubtitle = "You Have Not Found Enough Watchtowers";
+    [SerializeField] string winTitle = "Excellent";
+    [SerializeField] string winSubtitle = "You Have Found The Watchtowers";
+    [SerializeField] string gameOverTitle = "Game Over";
+    [SerializeField] string gameOverSubtitle = "Click to Replay";
+    [SerializeField] string endGameSuccessTitle = "Well Done!";
+    [SerializeField] string endGameSuccessSubtitle = "Take a Screenshot and Share Your Result";
     [SerializeField] string buttonText = "Play";
     [SerializeField] int energyStraightOn = 25;
     [SerializeField] int numberOfWatchTowersToFind = 1;
@@ -82,6 +88,7 @@ public class Player : MonoBehaviour
         gameMessageTitle = GameObject.Find("/UIOverlay/GameMessageTitle").GetComponent<Text>();
         gameMessageRules = GameObject.Find("/UIOverlay/GameMessageRules").GetComponent<Text>();
         gameMessageButton = GameObject.Find("/UIOverlay/ButtonWrapper/GameMessageButton").GetComponent<Button>();
+        gameMessageButton.onClick.AddListener(delegate { btnClicked(""); });
         buttonWrapper = GameObject.Find("/UIOverlay/ButtonWrapper").GetComponent<Canvas>();
         timer.init();
         energyProgress.BarValue = 100;
@@ -164,13 +171,14 @@ public class Player : MonoBehaviour
         buttonWrapper.enabled = false;
     }
 
-    public void onButtonClicked()
+    void btnClicked(string param)
     {
-        print("clicked");
+        LoadNextLevel();
     }
 
     private void LoadNextLevel()
     {
+        DeerWatch.numWatchTowers = 0;
         currentLevel++;
         if (currentLevel == SceneManager.sceneCountInBuildSettings)
             currentLevel = 0;
@@ -179,6 +187,7 @@ public class Player : MonoBehaviour
 
     private void start()
     {
+        DeerWatch.numWatchTowersFound = 0;
         timer.StartTimer();
         PlayStartSound();
         gameMessageTitle.enabled = false;
@@ -237,7 +246,43 @@ public class Player : MonoBehaviour
 
     private void showEndScreen(Boolean success)
     {
-        Invoke("LoadNextLevel", levelLoadDelay);
+        gameMessageTitle.enabled = true;
+        gameMessageSubTitle.enabled = true;
+        if (success)
+        {
+            gameMessageTitle.text = winTitle;
+            gameMessageSubTitle.text = winSubtitle;
+            if (currentLevel == SceneManager.sceneCountInBuildSettings)
+            {
+                Invoke("EndGameInstructions", levelLoadDelay);
+            }
+            else
+            {
+                Invoke("LoadNextLevel", levelLoadDelay);
+            }
+        }
+        else
+        {
+            gameMessageTitle.text = loseTitle;
+            gameMessageSubTitle.text = loseSubtitle;
+            Invoke("GameOver", levelLoadDelay);
+        } 
+    }
+
+    private void EndGameInstructions()
+    {
+        gameMessageTitle.text = endGameSuccessTitle;
+        gameMessageSubTitle.text = endGameSuccessSubtitle;
+        buttonWrapper.enabled = true;
+        currentLevel = 0;
+    }
+
+    private void GameOver()
+    {
+        gameMessageTitle.text = gameOverTitle;
+        gameMessageSubTitle.text = gameOverSubtitle;
+        buttonWrapper.enabled = true;
+        currentLevel =0;
     }
 
 
