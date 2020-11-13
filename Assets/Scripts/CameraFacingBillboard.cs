@@ -33,11 +33,11 @@ public class CameraFacingBillboard : MonoBehaviour
 		{
 			if(faceCamera)
             {
-				myContainer.transform.LookAt(myContainer.transform.position + m_Camera.transform.rotation * Vector3.back, m_Camera.transform.rotation * Vector3.up);
+			//	myContainer.transform.LookAt(myContainer.transform.position + m_Camera.transform.rotation * Vector3.back, m_Camera.transform.rotation * Vector3.up);
 			}
             else
             {
-				myContainer.transform.LookAt(myContainer.transform.position + m_Player.transform.rotation * Vector3.back, m_Player.transform.rotation * Vector3.up);
+			//	myContainer.transform.LookAt(myContainer.transform.position + m_Player.transform.rotation * Vector3.back, m_Player.transform.rotation * Vector3.up);
 			}
 			
 		}
