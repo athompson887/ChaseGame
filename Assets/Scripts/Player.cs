@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     public float jumpForce = 10.0f;
     private float speed = 0.0f;
     private double lossRate = 0.0f;
+    private ParticleSystem sweat;
     private GameObject runFaceVar;
     private GameObject jumpFaceVar;
     private GameObject idleFaceVar;
@@ -80,6 +81,8 @@ public class Player : MonoBehaviour
         controller = GetComponent<CharacterController>();
         anim = gameObject.GetComponentInChildren<Animator>();
         runFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceRun");
+        sweat = GameObject.Find("/ChaseHarrier/Sweat").GetComponent<ParticleSystem>();
+        sweat.Stop();
         jumpFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceJump");
         idleFaceVar = GameObject.Find("/ChaseHarrier/Armature/Root/Spine1/Spine2/Neck/Head/GEOFaceIdle");
         energyProgress = GameObject.Find("/UIOverlay/EnergyBar").GetComponent<ProgressBar>();
@@ -317,6 +320,7 @@ public class Player : MonoBehaviour
     }
     void Recover()
     {
+        sweat.Stop();
         energy = MAX_ENERGY;
         energyProgress.BarValue = 100;
         anim.SetInteger("AnimPar", (int)AnimationState.ToIdle);
@@ -337,6 +341,7 @@ public class Player : MonoBehaviour
         }
         else if (energy == 0)
         {
+            sweat.Play();
             anim.SetInteger("AnimPar", (int)AnimationState.ToTired);
             moveDirection = transform.forward * Input.GetAxis("Vertical") * 0;
             float turn = Input.GetAxis("Horizontal");
