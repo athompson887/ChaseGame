@@ -54,6 +54,7 @@ public class Player : MonoBehaviour
     private Text gameMessageSubTitle;
     private Text gameMessageTitle;
     private Text gameMessageRules;
+    private Text deerText;
     private Button gameMessageButton;
     private Canvas buttonWrapper;
     private ProgressBar energyProgress;
@@ -90,6 +91,7 @@ public class Player : MonoBehaviour
         gameMessageSubTitle = GameObject.Find("/UIOverlay/GameMessageSubTitle").GetComponent<Text>();
         gameMessageTitle = GameObject.Find("/UIOverlay/GameMessageTitle").GetComponent<Text>();
         gameMessageRules = GameObject.Find("/UIOverlay/GameMessageRules").GetComponent<Text>();
+
         gameMessageButton = GameObject.Find("/UIOverlay/ButtonWrapper/GameMessageButton").GetComponent<Button>();
         gameMessageButton.onClick.AddListener(delegate { btnClicked(""); });
         buttonWrapper = GameObject.Find("/UIOverlay/ButtonWrapper").GetComponent<Canvas>();
@@ -172,16 +174,23 @@ public class Player : MonoBehaviour
         gameMessageButton.GetComponentInChildren<Text>().text = buttonText;
         gameMessageRules.text = levelRules;
         buttonWrapper.enabled = false;
+        resetWatchTowers();
     }
 
     void btnClicked(string param)
     {
-        LoadNextLevel();
+        LoadLevel();
+    }
+
+    private void resetWatchTowers()
+    {
+        DeerWatch.numWatchTowers = numberOfWatchTowersToFind;
+        DeerWatch.numWatchTowersFound = 0;
+        DeerWatch.Render();
     }
 
     private void LoadNextLevel()
     {
-        DeerWatch.numWatchTowers = 0;
         currentLevel++;
         if (currentLevel == SceneManager.sceneCountInBuildSettings)
             currentLevel = 0;
@@ -190,7 +199,6 @@ public class Player : MonoBehaviour
 
     private void start()
     {
-        DeerWatch.numWatchTowersFound = 0;
         timer.StartTimer();
         PlayStartSound();
         gameMessageTitle.enabled = false;
@@ -255,7 +263,7 @@ public class Player : MonoBehaviour
         {
             gameMessageTitle.text = winTitle;
             gameMessageSubTitle.text = winSubtitle;
-            if (currentLevel == SceneManager.sceneCountInBuildSettings)
+            if (currentLevel == SceneManager.sceneCountInBuildSettings-1)//-1 because of splash screen
             {
                 Invoke("EndGameInstructions", levelLoadDelay);
             }

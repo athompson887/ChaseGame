@@ -6779,7 +6779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1001 &771986456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6897,7 +6897,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &810151320
 GameObject:
   m_ObjectHideFlags: 0
@@ -10079,7 +10079,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 317249206727037570, guid: 89273bc125416fb45ad4948c38755d16, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6172884756137002617, guid: 89273bc125416fb45ad4948c38755d16, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13145,6 +13145,10 @@ PrefabInstance:
     - target: {fileID: 8776366010460757709, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
       propertyPath: m_Name
       value: EndLine Level 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8776366010460757709, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8776366011519671098, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
       propertyPath: m_IsActive
@@ -16234,15 +16238,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: levelName
-      value: Level 3
+      value: Level 5
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: levelSubtitle
-      value: Are you getting the hang of this?
+      value: Game Finale
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: levelRules
-      value: Find 7 WatchTowers and Race to the End
+      value: Find 15 WatchTowers and Race to the End
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: loseTitle
@@ -16254,15 +16258,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: loseSubtitle
-      value: You Lose You Didn't Find The WatchTowers
+      value: You Lose You Didn't Find the WatchTowers
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: numberOfWatchTowersToFind
-      value: 7
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 253052283066478574, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: winSubtitle
-      value: You Have Found The WatchTowers
+      value: You Have Found all of the WatchTowers
       objectReference: {fileID: 0}
     - target: {fileID: 290971222088933729, guid: 151159bd55d9534418d197f2148eec6e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -16404,6 +16408,10 @@ PrefabInstance:
     - target: {fileID: 8776366010460757709, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
       propertyPath: m_Name
       value: EndLine Level 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8776366010460757709, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8776366011519671098, guid: a44cc13d5ea0f4b42b6f9bbd26c24dcc, type: 3}
       propertyPath: m_IsActive
@@ -17163,7 +17171,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 317249206727037570, guid: 89273bc125416fb45ad4948c38755d16, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6172884756137002617, guid: 89273bc125416fb45ad4948c38755d16, type: 3}
       propertyPath: m_LocalPosition.x
